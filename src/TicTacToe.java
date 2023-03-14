@@ -235,24 +235,22 @@ public class TicTacToe {
      * @return true if the player got a row win
      */
     private static boolean isRowWin(String player) {
-        int counter; // counts how many times it found the player String (i.e. how many times it found an X or an O)
 
         // go through each row
         for (int i = 0; i < ROW; i++) {
-            counter = 0; // reset the counter at the beginning of each row
 
             // go through each column
             for (int j = 0; j < COL; j++) {
 
                 // if the board at that spot matches the player, add one to the counter
-                if (board[i][j].equals(player)) {
-                    counter++;
+                if (!board[i][j].equals(player)) {
+                    break;
                 }
-            }
 
-            // check if the counter is 3
-            if (counter == 3) {
-                return true; // if so, they got a row win
+                // if j = 2 (it's in the last space of the row) and it made it to this part, they won
+                if (j == 2) {
+                    return true;
+                }
             }
         }
         return false; // if it didn't already return true, return false
@@ -265,7 +263,6 @@ public class TicTacToe {
      * @return true if the player got a column win
      */
     private static boolean isColWin(String player) {
-        boolean colWin = false;
 
         // go through each column first
         for (int j = 0; j < COL; j++) {
@@ -280,12 +277,11 @@ public class TicTacToe {
 
                 // if i = 2 (it's in the last space of the column) and it made it to this part, they won
                 if (i == 2) {
-                    colWin = true;
-                    break;
+                    return true;
                 }
             }
         }
-        return colWin;
+        return false;
     }
 
     /**
@@ -330,64 +326,103 @@ public class TicTacToe {
             }
         }
 
+        boolean foundX; // true if X is present within a win vector
+        boolean foundO; // true if O is present within a win vector
+
         // if there are 9 filled spaces, they tied. otherwise:
         if (counter != 9) {
 
             // check rows
             for (int i = 0; i < ROW; i++) {
+                foundX = false; // reset booleans
+                foundO = false;
 
-                // if the first space is an X, check if either of the spaces ahead are O's
-                if (board[i][0].equals("X")) {
+                // go through spaces
+                for (int j = 0; j < COL; j++) {
 
-                    if (!board[i][1].equals("O") && !board[i][2].equals("O")) {
-                        return false; // if it fails any row check, return false
-                    }
-
-                    // if the first space is an O, check if either of the spaces ahead are X's
-                } else if (board[i][0].equals("O")) {
-
-                    if (!board[i][1].equals("X") && !board[i][2].equals("X")) {
-                        return false; // if it fails any row check, return false
+                    // check if the spaces have an X and if they have an O
+                    if (board[i][j].equals("X")) {
+                        foundX = true; // found an X
+                    } else if (board[i][j].equals("O")) {
+                        foundO = true; // found an O
                     }
                 }
-            }
 
-            // after it passes the row check, check the columns
-            for (int j = 0; j < COL; j++) {
-
-                // if first space is an X, check whether either of the spaces ahead are O's
-                if (board[0][j].equals("X")) {
-
-                    if (!board[1][j].equals("O") && !board[2][j].equals("O")) {
-                        return false; // if it fails any column check, return false
-                    }
-                    // if the first space is an O, check if either of the spaces ahead are X's
-                } else if (board[0][j].equals("O")) {
-
-                    if (!board[1][j].equals("X") && !board[2][j].equals("X")) {
-                        return false; // if it fails any column check, return false
-                    }
-                }
-            }
-
-            // after it passes both the row check and the column check, check diagonals.
-            // if the diagonal from top left to bottom right has a combination of an X in any spot AND an O in any spot
-            if ((board[0][0].equals("X") || board[1][1].equals("X") || board[2][2].equals("X")) &&
-                    (board[0][0].equals("O") || board[1][1].equals("O") || board[2][2].equals("O"))) {
-
-                // if the other diagonal has a possible move, there is no tie
-                if (!((board[0][2].equals("X") || board[1][1].equals("X") || board[2][0].equals("X")) &&
-                        (board[0][2].equals("O") || board[1][1].equals("O") || board[2][0].equals("O")))) {
+                // at the end of each row, if the row does not have both an X and an O in it, break and return false
+                if (!(foundX && foundO)) {
                     return false;
                 }
-            } else {
-                return false; // if diagonal 1 has no blocks, there is no tie
+            }
+
+            // after it passes the row check, check each column
+            for (int j = 0; j < COL; j++) {
+                foundX = false; // reset booleans
+                foundO = false;
+
+                // go through spaces
+                for (int i = 0; i < ROW; i++) {
+
+                    // check if the spaces have an X and if they have an O
+                    if (board[i][j].equals("X")) {
+                        foundX = true; // found an X
+                    } else if (board[i][j].equals("O")) {
+                        foundO = true; // found an O
+                    }
+                }
+
+                // at the end of each column, if the column does not have both an X and an O in it, break and return false
+                if (!(foundX && foundO)) {
+                    return false;
+                }
+            }
+
+            // makes new arrays for the 2 different diagonals to make iteration way easier
+            String[] diag1 = new String[]{board[0][0], board[1][1], board[2][2]};
+            String[] diag2 = new String[]{board[0][2], board[1][1], board[2][0]};
+
+            foundX = false; // reset booleans
+            foundO = false;
+
+            // check diagonal 1
+            for (int i = 0; i < 3; i++) {
+
+                // check if the spaces have an X and if they have an O
+                if (diag1[i].equals("X")) {
+                    foundX = true;
+                } else if (diag1[i].equals("O")) {
+                    foundO = true;
+                }
+            }
+
+            // if both X and O are not present in diagonal 1, break & return false
+            if (!(foundX && foundO)) {
+                return false;
+            }
+
+            foundX = false; // reset booleans
+            foundO = false;
+
+            // check diagonal 2
+            for (int i = 0; i < 3; i++) {
+
+                // check if the spaces have an X and if they have an O
+                if (diag2[i].equals("X")) {
+                    foundX = true;
+                } else if (diag2[i].equals("O")) {
+                    foundO = true;
+                }
+            }
+
+            // if both X and O are not present in diagonal 2, break & return false
+            if (!(foundX && foundO)) {
+                return false;
             }
         }
 
-    display(); // display board
-    System.out.printf("\n\n%28s%s", "", "You tied!"); // print tie message
+        // if the tie check has made it this far, that means they did indeed tie.
 
-    return true; // if it hasn't returned false yet, that means they tied
+        display(); // display board
+        System.out.printf("\n\n%28s%s", "", "You tied!"); // print tie message
+        return true;
     }
 }
