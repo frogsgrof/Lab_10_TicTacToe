@@ -7,18 +7,24 @@ public class TicTacToe {
     private static String[][] board = new String[ROW][COL]; // board array
 
     public static void main(String[] args) {
-        boolean playAgain = true; // ends game loop
-        boolean loopRound = true; // ends round loop
+
         Scanner in = new Scanner(System.in); // input scanner
+
+        boolean playAgain = true; // ends game loop
+        boolean gameRound = true; // ends round loop
+
         String player; // player variable; only switches between "X" and "O"
         int numMovesX = 0; // counts number of moves made by X
         int numMovesO = 0; // counts number of moves made by O
 
-        // stores move coords
-        int xRow; // row of x move
-        int xCol; // column of x move
-        int oRow; // row of o move
-        int oCol; // column of o move
+        // arrays that store move coords; function like regular (x, y) style coordinates.
+        // index 0 is the row, index 1 is the column
+        int[] xMove = new int[2];
+        int[] oMove = new int[2];
+
+        int xScore = 0; // games won by x
+        int oScore = 0; // games won by o
+        int totalGames = 0; // total number of games played
 
         // game loop
         do {
@@ -31,10 +37,10 @@ public class TicTacToe {
 
                 // get X move; asks user for a number 1-3, then subtracts one to convert it to an array index
                 do {
-                    xRow = SafeInput.getRangedInt(in, "Row", 1, 3) - 1;
-                    xCol = SafeInput.getRangedInt(in, "Column", 1, 3) - 1;
+                    xMove[0] = SafeInput.getRangedInt(in, "Row", 1, 3) - 1;
+                    xMove[1] = SafeInput.getRangedInt(in, "Column", 1, 3) - 1;
 
-                } while (!isValidMove(xRow, xCol)); // loops while the move is not allowed
+                } while (!isValidMove(xMove[0], xMove[1])); // loops while the move is not allowed
 
                 System.out.println(); // skips line
 
@@ -42,13 +48,13 @@ public class TicTacToe {
                 for (int i = 0; i < ROW; i++) {
 
                     // if it's the right row
-                    if (i == xRow) {
+                    if (i == xMove[0]) {
 
                         // go through each column
                         for (int j = 0; j < COL; j++) {
 
                             // if it's the right column, set that space to X or O
-                            if (j == xCol) {
+                            if (j == xMove[1]) {
                                 board[i][j] = player;
                                 numMovesX++; // add one to X move counter
                             }
@@ -60,12 +66,15 @@ public class TicTacToe {
                 if (numMovesX >= 3 || numMovesO >= 3) {
 
                     if (TicTacToe.isTie()) { // check for tie
-                        loopRound = false;
+                        totalGames++; // add one to total # of games
+                        gameRound = false;
                         break; // end round
                     }
 
                     if (TicTacToe.isWin(player)) {
-                        loopRound = false;
+                        totalGames++; // add one to total # of games
+                        xScore++; // +1 to player O's score
+                        gameRound = false;
                         break; // end round
                     }
                 }
@@ -75,10 +84,10 @@ public class TicTacToe {
 
                 // get O move; asks user for a number 1-3, then subtracts one to convert it to an array index
                 do {
-                    oRow = SafeInput.getRangedInt(in, "Row", 1, 3) - 1;
-                    oCol = SafeInput.getRangedInt(in, "Column", 1, 3) - 1;
+                    oMove[0] = SafeInput.getRangedInt(in, "Row", 1, 3) - 1;
+                    oMove[1] = SafeInput.getRangedInt(in, "Column", 1, 3) - 1;
 
-                } while (!isValidMove(oRow, oCol)); // loops while the move is not allowed
+                } while (!isValidMove(oMove[0], oMove[1])); // loops while the move is not allowed
 
                 System.out.println(); // skips line
 
@@ -86,13 +95,13 @@ public class TicTacToe {
                 for (int i = 0; i < ROW; i++) {
 
                     // if it's the right row
-                    if (i == oRow) {
+                    if (i == oMove[0]) {
 
                         // go through each column
                         for (int j = 0; j < COL; j++) {
 
                             // if it's the right column, set that space to X or O
-                            if (j == oCol) {
+                            if (j == oMove[1]) {
                                 board[i][j] = player;
                                 numMovesO++; // add one to O move counter
                             }
@@ -104,18 +113,30 @@ public class TicTacToe {
                 if ((numMovesX >= 3 || numMovesO >= 3) && numMovesX == numMovesO) {
 
                     if (TicTacToe.isTie()) { // check for tie
-                        loopRound = false;
+                        totalGames++; // add one to total # of games
+                        gameRound = false;
                         break; // end round
                     }
 
                     if (TicTacToe.isWin(player)) {
-                        loopRound = false;
+                        totalGames++; // add one to total # of games
+                        oScore++; // +1 to player O's score
+                        gameRound = false;
                         break; // end round
                     }
                 }
 
                 // loop round if no one won
-            } while (loopRound);
+            } while (gameRound);
+
+            // show scoreboard
+            System.out.printf("\n\n%24s══════════════════\n", " ");
+            System.out.printf("%30sSCORE\n", "");
+            System.out.printf("%24s══════════════════\n", " ");
+            System.out.printf("%31sX: " + xScore + "\n", "");
+            System.out.printf("%31sO: " + oScore + "\n", "");
+            System.out.printf("%26sTOTAL GAMES: " + totalGames + "\n", " ");
+            System.out.printf("%24s══════════════════\n", " ");
 
             // ask user if they want to play again
             if (!SafeInput.getYNConfirm(in, "\nPlay again?")) {
@@ -146,8 +167,11 @@ public class TicTacToe {
         // header time :)
         SafeInput.prettyHeader("TIC TAC TOE");
 
+        // column numbers
+        System.out.printf("%13s1%18s2%18s3\n", "", "", "");
+
         // top line
-        System.out.print("\n   ");
+        System.out.print("   ");
         for (int i = 0; i < 60; i++) {
             System.out.print("*");
         }
@@ -158,7 +182,7 @@ public class TicTacToe {
             // includes blank line above and below actual play spaces
             System.out.printf("\n   **%18s*%18s*%18s**", "", "", "");
             System.out.printf("\n   **%18s*%18s*%18s**", "", "", "");
-            System.out.printf("\n   **%8s%s%9s*%8s%s%9s*%8s%s%9s**", "", board[i][0], "", "", board [i][1], "", "", board[i][2], "");
+            System.out.printf("\n%d  **%8s%s%9s*%8s%s%9s*%8s%s%9s**", i + 1, "", board[i][0], "", "", board [i][1], "", "", board[i][2], "");
             System.out.printf("\n   **%18s*%18s*%18s**", "", "", "");
             System.out.printf("\n   **%18s*%18s*%18s**\n", "", "", "");
 
@@ -177,8 +201,11 @@ public class TicTacToe {
      */
     private static void movePrompt(String player) {
         TicTacToe.display();
+
         // move prompt
-        System.out.printf("\n\n%25s%s\n\n", "", "Player " + player + "'s move");
+        System.out.printf("\n\n%23s═══════════════════\n", "");
+        System.out.printf("%25s%s\n", "", "Player " + player + "'s move");
+        System.out.printf("%23s═══════════════════\n", "");
     }
 
     /**

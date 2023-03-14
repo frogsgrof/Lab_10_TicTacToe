@@ -324,7 +324,8 @@ public class SafeInput {
             System.out.print("*");
         }
 
-        // skip a line at the end
+        // skip 2 lines at the end
+        System.out.println();
         System.out.println();
     }
 }
