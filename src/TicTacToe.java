@@ -6,23 +6,6 @@ public class TicTacToe {
     private static final int COL = 3; // columns of board
     private static String[][] board = new String[ROW][COL]; // board array
 
-    /*
-Your program should:
-did
-Clear the board and set the player to X (since X always moves first)
-
-get the coordinates for the move which should be 1 – 3 for the row and col
-
-convert the player move coordinates to the array indices which are 0 – 2 by subtracting 1
-loop until the converted player coordinates are a valid move
-
-did not
-if appropriate check for a win or a tie
-(i.e. if it is possible for a win or a tie at this point in the game, check for it.)
-
-If there is a win or tie announce it and then prompt the players to play again.
-Toggle the player (i.e. X becomes O, O becomes X)
-     */
     public static void main(String[] args) {
         boolean playAgain = true; // ends game loop
         boolean loopRound = true; // ends round loop
