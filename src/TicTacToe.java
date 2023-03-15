@@ -11,27 +11,27 @@ public class TicTacToe {
         Scanner in = new Scanner(System.in); // input scanner
 
         boolean playAgain = true; // ends game loop
-        boolean gameRound = true; // ends round loop
 
         String player; // player variable; only switches between "X" and "O"
-        int numMovesX = 0; // counts number of moves made by X
-        int numMovesO = 0; // counts number of moves made by O
 
         // arrays that store move coords; function like regular (x, y) style coordinates.
         // index 0 is the row, index 1 is the column
         int[] xMove = new int[2];
         int[] oMove = new int[2];
 
-        int xScore = 0; // games won by x
-        int oScore = 0; // games won by o
         int totalGames = 0; // total number of games played
+        int roundCounter; // round counter (for initiating win/tie check)
+        int xScore = 0; // rounds won by x
+        int oScore = 0; // rounds won by o
 
         // game loop
         do {
             TicTacToe.clearBoard(); // clear board
+            roundCounter = 0; // reset round counter
+            totalGames++; // add one to game counter
 
             do { // round loop
-
+                roundCounter++; // add one to round counter
                 player = "X"; // set player to X
                 TicTacToe.movePrompt(player); // start round + prompt for X move
 
@@ -40,41 +40,24 @@ public class TicTacToe {
                     xMove[0] = SafeInput.getRangedInt(in, "Row", 1, 3) - 1;
                     xMove[1] = SafeInput.getRangedInt(in, "Column", 1, 3) - 1;
 
+                    if (!isValidMove(xMove[0], xMove[1])) {
+                        System.out.println("ERROR: Space at (" + (xMove[0] + 1) + ", " + (xMove[1] + 1) + ") is not available.");
+                    }
+
                 } while (!isValidMove(xMove[0], xMove[1])); // loops while the move is not allowed
 
                 System.out.println(); // skips line
-
-                // put X move in the board
-                for (int i = 0; i < ROW; i++) {
-
-                    // if it's the right row
-                    if (i == xMove[0]) {
-
-                        // go through each column
-                        for (int j = 0; j < COL; j++) {
-
-                            // if it's the right column, set that space to X or O
-                            if (j == xMove[1]) {
-                                board[i][j] = player;
-                                numMovesX++; // add one to X move counter
-                            }
-                        }
-                    }
-                }
+                placeMove(player, xMove); // put X move in the board
 
                 // if X or O has made at least 3 moves, check for tie or X win
-                if (numMovesX >= 3 || numMovesO >= 3) {
+                if (roundCounter >= 3) {
 
                     if (TicTacToe.isTie()) { // check for tie
-                        totalGames++; // add one to total # of games
-                        gameRound = false;
                         break; // end round
                     }
 
                     if (TicTacToe.isWin(player)) {
-                        totalGames++; // add one to total # of games
                         xScore++; // +1 to player O's score
-                        gameRound = false;
                         break; // end round
                     }
                 }
@@ -87,47 +70,30 @@ public class TicTacToe {
                     oMove[0] = SafeInput.getRangedInt(in, "Row", 1, 3) - 1;
                     oMove[1] = SafeInput.getRangedInt(in, "Column", 1, 3) - 1;
 
+                    if (!isValidMove(oMove[0], oMove[1])) {
+                        System.out.println("ERROR: Space at (" + (oMove[0] + 1) + ", " + (oMove[1] + 1) + ") is not available.");
+                    }
+
                 } while (!isValidMove(oMove[0], oMove[1])); // loops while the move is not allowed
 
                 System.out.println(); // skips line
-
-                // put O move in the board
-                for (int i = 0; i < ROW; i++) {
-
-                    // if it's the right row
-                    if (i == oMove[0]) {
-
-                        // go through each column
-                        for (int j = 0; j < COL; j++) {
-
-                            // if it's the right column, set that space to X or O
-                            if (j == oMove[1]) {
-                                board[i][j] = player;
-                                numMovesO++; // add one to O move counter
-                            }
-                        }
-                    }
-                }
+                placeMove(player, oMove); // put O move in the board
 
                 // if X or O has made at least 3 moves, check for tie or O win
-                if ((numMovesX >= 3 || numMovesO >= 3) && numMovesX == numMovesO) {
+                if (roundCounter >= 3) {
 
                     if (TicTacToe.isTie()) { // check for tie
-                        totalGames++; // add one to total # of games
-                        gameRound = false;
                         break; // end round
                     }
 
                     if (TicTacToe.isWin(player)) {
-                        totalGames++; // add one to total # of games
                         oScore++; // +1 to player O's score
-                        gameRound = false;
                         break; // end round
                     }
                 }
 
-                // loop round if no one won
-            } while (gameRound);
+                // loop round if no one won or tied
+            } while (!TicTacToe.isTie() && !TicTacToe.isWin("X") && TicTacToe.isWin("O"));
 
             // show scoreboard
             System.out.printf("\n\n%24s══════════════════\n", " ");
@@ -237,6 +203,31 @@ public class TicTacToe {
     }
 
     /**
+     * Places the player's desired move onto the board
+     *
+     * @param player player making the move
+     * @param coords space on the board to place the move
+     */
+    private static void placeMove(String player, int[] coords) {
+
+        for (int i = 0; i < ROW; i++) {
+
+            // if it's the right row
+            if (i == coords[0]) {
+
+                // go through each column
+                for (int j = 0; j < COL; j++) {
+
+                    // if it's the right column, set that space to X or O
+                    if (j == coords[1]) {
+                        board[i][j] = player;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Checks whether a specified player won.
      * If they did, displays the board along with a message saying they won.
      *
@@ -341,6 +332,8 @@ public class TicTacToe {
     private static boolean isTie() {
 
         int counter = 0; // counts any board spaces that are not empty
+        boolean foundX; // true if X is present within a win vector
+        boolean foundO; // true if O is present within a win vector
 
         // all spaces filled
         for (int i = 0; i < ROW; i++) {
@@ -353,8 +346,8 @@ public class TicTacToe {
             }
         }
 
-        boolean foundX; // true if X is present within a win vector
-        boolean foundO; // true if O is present within a win vector
+        foundX = false; // reset booleans
+        foundO = false;
 
         // if there are 9 filled spaces, they tied. otherwise:
         if (counter != 9) {
