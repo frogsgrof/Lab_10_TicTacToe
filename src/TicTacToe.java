@@ -9,20 +9,17 @@ public class TicTacToe {
     public static void main(String[] args) {
 
         Scanner in = new Scanner(System.in); // input scanner
-
-        boolean playAgain = true; // ends game loop
-
         String player; // player variable; only switches between "X" and "O"
+        boolean playAgain = true; // ends game loop
+        int totalGames = 0; // total number of games played
+        int roundCounter; // round counter (for initiating win/tie check)
+        int xScore = 0; // rounds won by x
+        int oScore = 0; // rounds won by o
 
         // arrays that store move coords; function like regular (x, y) style coordinates.
         // index 0 is the row, index 1 is the column
         int[] xMove = new int[2];
         int[] oMove = new int[2];
-
-        int totalGames = 0; // total number of games played
-        int roundCounter; // round counter (for initiating win/tie check)
-        int xScore = 0; // rounds won by x
-        int oScore = 0; // rounds won by o
 
         // game loop
         do {
@@ -41,29 +38,30 @@ public class TicTacToe {
                     xMove[1] = SafeInput.getRangedInt(in, "Column", 1, 3) - 1;
 
                     if (!isValidMove(xMove[0], xMove[1])) {
-                        System.out.println("ERROR: Space at (" + (xMove[0] + 1) + ", " + (xMove[1] + 1) + ") is not available.");
+                        // error message uses the values stored in xMove and adds one, so they make sense to the user
+                        System.out.println("ERROR: Space at (Row " + (xMove[0] + 1) + ", Column " + (xMove[1] + 1) + ") is not available.");
                     }
 
                 } while (!isValidMove(xMove[0], xMove[1])); // loops while the move is not allowed
 
                 System.out.println(); // skips line
-                placeMove(player, xMove); // put X move in the board
+                placeMove(player, xMove); // puts1 X move in the board
 
-                // if X or O has made at least 3 moves, check for tie or X win
+                // if this is at least the 3rd round, check for a tie or win
                 if (roundCounter >= 3) {
 
-                    if (TicTacToe.isTie()) { // check for tie
+                    if (TicTacToe.isTie()) { // if they tied, displays game board & scoreboard
                         break; // end round
                     }
 
-                    if (TicTacToe.isWin(player)) {
+                    if (TicTacToe.isWin(player)) { // if they won, displays game board & scoreboard
                         xScore++; // +1 to player O's score
                         break; // end round
                     }
                 }
 
                 player = "O"; // set the player to O
-                TicTacToe.movePrompt(player); // display board
+                TicTacToe.movePrompt(player); // display board & move prompt
 
                 // get O move; asks user for a number 1-3, then subtracts one to convert it to an array index
                 do {
@@ -71,29 +69,30 @@ public class TicTacToe {
                     oMove[1] = SafeInput.getRangedInt(in, "Column", 1, 3) - 1;
 
                     if (!isValidMove(oMove[0], oMove[1])) {
+                        // error message uses the values stored in oMove and adds one, so they make sense to the user
                         System.out.println("ERROR: Space at (" + (oMove[0] + 1) + ", " + (oMove[1] + 1) + ") is not available.");
                     }
 
                 } while (!isValidMove(oMove[0], oMove[1])); // loops while the move is not allowed
 
                 System.out.println(); // skips line
-                placeMove(player, oMove); // put O move in the board
+                placeMove(player, oMove); // puts O move in the board
 
-                // if X or O has made at least 3 moves, check for tie or O win
+                // if this is at least the 3rd round, check for a tie or win
                 if (roundCounter >= 3) {
 
-                    if (TicTacToe.isTie()) { // check for tie
+                    if (TicTacToe.isTie()) { // if they tied, displays game board & scoreboard
                         break; // end round
                     }
 
-                    if (TicTacToe.isWin(player)) {
+                    if (TicTacToe.isWin(player)) { // if they won, displays game board & scoreboard
                         oScore++; // +1 to player O's score
                         break; // end round
                     }
                 }
 
                 // loop round if no one won or tied
-            } while (!TicTacToe.isTie() && !TicTacToe.isWin("X") && TicTacToe.isWin("O"));
+            } while (!TicTacToe.isTie() && !TicTacToe.isWin("X") && !TicTacToe.isWin("O"));
 
             // show scoreboard
             System.out.printf("\n\n%24s══════════════════\n", " ");
@@ -345,9 +344,6 @@ public class TicTacToe {
                 }
             }
         }
-
-        foundX = false; // reset booleans
-        foundO = false;
 
         // if there are 9 filled spaces, they tied. otherwise:
         if (counter != 9) {
