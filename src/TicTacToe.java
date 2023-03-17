@@ -238,7 +238,10 @@ public class TicTacToe {
         if (TicTacToe.isRowWin(player) || TicTacToe.isColWin(player) || TicTacToe.isDiagonalWin(player)){
 
             TicTacToe.display(); // display board
-            System.out.printf("\n\n%26s%s", "", "Player " + player + " won!"); // print win message
+
+            // ▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄
+
+            System.out.printf("\n\n%26s%s%s", "▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄", " Player " + player + " won! ", "▄▀▄▀▄▀▄▀▄▀▄▀▄▀▄"); // print win message
 
             return true; // return true
         }
